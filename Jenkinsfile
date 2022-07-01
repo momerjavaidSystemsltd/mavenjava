@@ -1,14 +1,32 @@
 pipeline {
-    agent {
-        any {
-            image 'maven:3-alpine'
-            args '-v /root/.m2:/root/.m2'
-        }
-    }
+    agent any
     stages {
+        stage('Git') {
+            steps {
+              git 'https://github.com/momerjavaidSystemsltd/mavenjava.git'
+            }
+        }
         stage('Build') {
             steps {
-                sh 'apt install maven '
+                sh 'mvn -B -DskipTests clean package'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t omerj121/my-maven-docker-project.jar .'
+            }
+        }
+        stage('Run a container') {
+            steps {
+                  sh 'docker run -d -p 6060:8080 omerj121/my-maven-docker-project.jar'
+            }
+        }
+        stage('Sonar Analyzer') {
+            steps {
+             mvn clean verify sonar:sonar \
+            -Dsonar.projectKey=maven \
+            -Dsonar.host.url=http://20.54.72.51:9000 /
+            -Dsonar.login=sqp_4dafb01165c0f066c45e4f94bb3a24c1f39807aa
             }
         }
         stage('Test') {
@@ -27,4 +45,7 @@ pipeline {
             }
         }
     }
-}
+
+    
+        
+    
