@@ -23,10 +23,11 @@ pipeline {
         }
         stage('Sonar Analyzer') {
             steps {
-             mvn clean verify sonar:sonar \
-            -Dsonar.projectKey=maven \
-            -Dsonar.host.url=http://20.54.72.51:9000 /
-            -Dsonar.login=sqp_4dafb01165c0f066c45e4f94bb3a24c1f39807aa
+                     withSonarQubeEnv('sonarqube') {
+                        sh "mvn clean verify sonar:sonar" 
+                        sh "-Dsonar.projectKey=maven" 
+                        sh "-Dsonar.host.url=http://20.54.72.51:9000"
+                }
             }
         }
         stage('Test') {
@@ -45,6 +46,7 @@ pipeline {
             }
         }
     }
+}
 
     
         
